@@ -1,0 +1,14 @@
+{
+  "name": "@linkedin-scrapers/company-page-browser",
+  "version": "1.0.0",
+  "type": "module",
+  "main": "index.mjs",
+  "scripts": {
+    "start": "node index.mjs"
+  },
+  "dependencies": {
+    "@linkedin-scrapers/core": "^1.0.0",
+    "dotenv": "^17.2.3",
+    "patchright": "^1.57.0"
+  }
+}

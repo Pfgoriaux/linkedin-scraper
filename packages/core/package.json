@@ -1,0 +1,35 @@
+{
+  "name": "@linkedin-scrapers/core",
+  "version": "1.0.0",
+  "type": "module",
+  "main": "index.mjs",
+  "exports": {
+    ".": "./index.mjs",
+    "./logger": "./lib/logger.mjs",
+    "./proxy": "./lib/proxy.mjs",
+    "./browser": "./lib/browser.mjs",
+    "./cookies": "./lib/cookies.mjs",
+    "./response": "./lib/response.mjs",
+    "./server": "./lib/server.mjs",
+    "./http-client": "./lib/http-client.mjs",
+    "./scroll": "./lib/scroll.mjs",
+    "./extractors/company-page": "./extractors/company-page.mjs",
+    "./extractors/job": "./extractors/job.mjs",
+    "./extractors/directory": "./extractors/directory.mjs"
+  },
+  "dependencies": {
+    "cheerio": "^1.1.0",
+    "express": "^5.1.0",
+    "https-proxy-agent": "^7.0.2",
+    "node-fetch": "^2.7.0",
+    "user-agents": "^1.1.669"
+  },
+  "peerDependencies": {
+    "patchright": "^1.57.0"
+  },
+  "peerDependenciesMeta": {
+    "patchright": {
+      "optional": true
+    }
+  }
+}
