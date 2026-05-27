@@ -132,6 +132,14 @@ export function extractLogo(html) {
     return null;
 }
 
+// Claimed pages render a tab nav (Home/Posts/About/People/Jobs) and an
+// "about us" description block. Auto-generated stubs have neither.
+export function isUnclaimedPage(html) {
+    const hasNavTabs = html.includes('data-test-id="nav-tabs"');
+    const hasDescription = html.includes('data-test-id="about-us__description"');
+    return !hasNavTabs && !hasDescription;
+}
+
 /**
  * Extract all company info from a LinkedIn company page's HTML.
  * @param {string} html
@@ -159,6 +167,7 @@ export function extractCompanyInfo(html) {
 
         return {
             companyName: companyData.name || extractText(html, 'h1'),
+            unclaimed: isUnclaimedPage(html),
             logo: extractLogo(html),
             description: extractDescription(html),
             website: extractWebsiteUrl(html),

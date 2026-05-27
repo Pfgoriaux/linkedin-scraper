@@ -1,6 +1,8 @@
 import 'dotenv/config';
 import {
   buildHttpProxyUrl,
+  buildFallbackProxyPool,
+  pickFallbackProxy,
   createApp,
   startServer,
   fetchWithProxy,
@@ -8,9 +10,11 @@ import {
 } from '@linkedin-scrapers/core';
 import { extractCompanyInfo } from '@linkedin-scrapers/core/extractors/company-page';
 
-// Build proxy URLs from environment variables
+// Primary proxy — always the same
 const proxyUrl1 = buildHttpProxyUrl();
-const proxyUrl2 = buildHttpProxyUrl('_2');
+
+// Fallback pool — one is picked at random when the primary fails
+const fallbackPool = buildFallbackProxyPool(5);
 
 const app = createApp();
 
@@ -24,12 +28,29 @@ app.get('/scrape', async (req, res) => {
   const targetUrl = `https://www.linkedin.com/company/${encodeURIComponent(query)}/`;
 
   try {
-    let response = await fetchWithProxy(targetUrl, proxyUrl1, { timeout: 15000 });
+    let response;
 
-    // If rate-limited and a fallback proxy is available, retry with it
-    if (response.status === 429 && proxyUrl2) {
-      console.log(`[${new Date().toISOString()}] Primary proxy rate-limited, retrying with fallback proxy`);
-      response = await fetchWithProxy(targetUrl, proxyUrl2, { timeout: 15000 });
+    // Try with primary proxy
+    try {
+      response = await fetchWithProxy(targetUrl, proxyUrl1, { timeout: 15000 });
+    } catch (primaryError) {
+      console.log(`[${new Date().toISOString()}] Primary proxy error: ${primaryError.message}`);
+      const fallback = pickFallbackProxy(fallbackPool);
+      if (fallback) {
+        console.log(`[${new Date().toISOString()}] Trying random fallback proxy`);
+        response = await fetchWithProxy(targetUrl, fallback, { timeout: 15000 });
+      } else {
+        throw primaryError;
+      }
+    }
+
+    // If primary returned non-200, retry once with a random fallback
+    if (response.status !== 200) {
+      const fallback = pickFallbackProxy(fallbackPool);
+      if (fallback) {
+        console.log(`[${new Date().toISOString()}] Primary proxy got ${response.status}, trying random fallback proxy`);
+        response = await fetchWithProxy(targetUrl, fallback, { timeout: 15000 });
+      }
     }
 
     if (!response.ok) {
@@ -60,4 +81,4 @@ app.get('/scrape', async (req, res) => {
 startServer(app, 3000);
 
 console.log(`[${new Date().toISOString()}] Primary proxy: ${proxyUrl1 ? 'configured' : 'NOT configured'}`);
-console.log(`[${new Date().toISOString()}] Fallback proxy: ${proxyUrl2 ? 'configured' : 'NOT configured'}`);
+console.log(`[${new Date().toISOString()}] Fallback proxies: ${fallbackPool.length} configured`);

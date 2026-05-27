@@ -51,10 +51,18 @@ PROXY_SERVER=http://host:port
 PROXY_USERNAME=user
 PROXY_PASSWORD=pass
 
-# Fallback proxy (company-page-http, company-page-browser)
+# Fallback proxy (company-page-browser)
 PROXY_SERVER_2=http://host2:port2
 PROXY_USERNAME_2=user2
 PROXY_PASSWORD_2=pass2
+
+# Fallback proxy pool for company-page-http — one is picked at random on
+# primary failure or non-200. Up to 5 supported.
+FALLBACK_PROXY_1=http://user:pass@host:port
+FALLBACK_PROXY_2=http://user:pass@host:port
+FALLBACK_PROXY_3=http://user:pass@host:port
+FALLBACK_PROXY_4=http://user:pass@host:port
+FALLBACK_PROXY_5=http://user:pass@host:port
 
 # Browser
 HEADLESS=true              # set to "false" for headed mode
@@ -72,7 +80,7 @@ PORT=3000
 GET /scrape?query=google
 ```
 
-Returns structured company data (name, description, website, HQ, funding, similar companies).
+Returns structured company data (name, description, website, HQ, funding, similar companies, `unclaimed` flag for auto-generated stubs).
 
 ### directory-http (port 3000)
 

@@ -59,3 +59,28 @@ export function buildHttpProxyUrl(suffix = '') {
 
     return null;
 }
+
+/**
+ * Build the fallback proxy pool from FALLBACK_PROXY_1..N env vars.
+ * Each var holds a full proxy URL (http://user:pass@host:port).
+ * @param {number} [count=5]
+ * @returns {string[]}
+ */
+export function buildFallbackProxyPool(count = 5) {
+    const pool = [];
+    for (let i = 1; i <= count; i++) {
+        const url = process.env[`FALLBACK_PROXY_${i}`];
+        if (url) pool.push(url);
+    }
+    return pool;
+}
+
+/**
+ * Pick a random proxy from a pool, or null if the pool is empty.
+ * @param {string[]} pool
+ * @returns {string | null}
+ */
+export function pickFallbackProxy(pool) {
+    if (!pool || pool.length === 0) return null;
+    return pool[Math.floor(Math.random() * pool.length)];
+}
